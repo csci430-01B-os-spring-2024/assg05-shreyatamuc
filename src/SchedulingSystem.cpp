@@ -173,19 +173,36 @@ string SchedulingSystem::getRunningProcessName() const
     return process[cpu].name;
   }
 }
+/**
+ * @brief function that checks if all processes are done or not.
+ * The simulation ends when all processes ran for their service times.
+ * @returns bool true or false depending if all processes in the table are done
+*/
+bool SchedulingSystem::allProcessesDone() const
+{
+  for (Pid pid=0; pid<numProcesses;pid++)
+  {
+    if (not process[pid].done)
+    {
+      return false;
+    }
+  }
+  return true;
+}
 
-  /** @brief get pid of running process
-   *
-   * Returns the process identifier (pid) of the process
-   * that is currently running.  This pid can be the
-   * special IDLE pid flag if there is currently no process
-   * running on the cpu.
-   *
-   * @returns Pid Returns the process identifier (pid) of the
-   *   current running process, or the IDLE flag if the cpu
-   *   is currently idle.
-   */
-  Pid SchedulingSystem::getRunningPid() const
+
+/** @brief get pid of running process
+*
+* Returns the process identifier (pid) of the process
+* that is currently running.  This pid can be the
+* special IDLE pid flag if there is currently no process
+* running on the cpu.
+*
+* @returns Pid Returns the process identifier (pid) of the
+*   current running process, or the IDLE flag if the cpu
+*   is currently idle.
+*/
+Pid SchedulingSystem::getRunningPid() const
 {
   return cpu;
 }
