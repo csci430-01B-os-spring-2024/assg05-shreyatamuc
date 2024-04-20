@@ -128,19 +128,64 @@ void SchedulingSystem::resetSystem()
   // make sure our policy resets as well
   policy->resetPolicy();
 }
-
-/** @brief get pid of running process
- *
- * Returns the process identifier (pid) of the process
- * that is currently running.  This pid can be the
- * special IDLE pid flag if there is currently no process
- * running on the cpu.
- *
- * @returns Pid Returns the process identifier (pid) of the
- *   current running process, or the IDLE flag if the cpu
- *   is currently idle.
+/**
+ * @brief system time accessor method that
+ * gives the current system time.
+ * @returns integer current system time of the simulation
  */
-Pid SchedulingSystem::getRunningPid() const
+int SchedulingSystem::getSystemTime() const
+{
+  return systemTime; 
+}
+/**
+ * @brief num processes accesor method that gets the 
+ * number of simulated processes in the process table.
+ * @returns integer total number of processes in the process table in 
+ * the simulation
+*/
+int SchedulingSystem::getNumProcesses() const
+{
+  return numProcesses;
+}
+/**
+ * @brief cpu idle test function that checks
+ * if the cpu is idle or not 
+ * @returns boolean true or false.
+*/
+bool SchedulingSystem::isCpuIdle() const
+{
+  return cpu==IDLE;
+}
+/**
+ * @brief get running processes method that gives the name
+ * of the current running process and will return IDLE if the cpu is 
+ * currently IDLE.
+ * @returns string of the name of the current running process. 
+*/
+string SchedulingSystem::getRunningProcessName() const
+{
+  if (isCpuIdle())
+  {
+    return "IDLE";
+  }
+  else
+  {
+    return process[cpu].name;
+  }
+}
+
+  /** @brief get pid of running process
+   *
+   * Returns the process identifier (pid) of the process
+   * that is currently running.  This pid can be the
+   * special IDLE pid flag if there is currently no process
+   * running on the cpu.
+   *
+   * @returns Pid Returns the process identifier (pid) of the
+   *   current running process, or the IDLE flag if the cpu
+   *   is currently idle.
+   */
+  Pid SchedulingSystem::getRunningPid() const
 {
   return cpu;
 }
