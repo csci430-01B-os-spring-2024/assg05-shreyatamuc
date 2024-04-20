@@ -135,33 +135,33 @@ void SchedulingSystem::resetSystem()
  */
 int SchedulingSystem::getSystemTime() const
 {
-  return systemTime; 
+  return systemTime;
 }
 /**
- * @brief num processes accesor method that gets the 
+ * @brief num processes accesor method that gets the
  * number of simulated processes in the process table.
- * @returns integer total number of processes in the process table in 
+ * @returns integer total number of processes in the process table in
  * the simulation
-*/
+ */
 int SchedulingSystem::getNumProcesses() const
 {
   return numProcesses;
 }
 /**
  * @brief cpu idle test function that checks
- * if the cpu is idle or not 
+ * if the cpu is idle or not
  * @returns boolean true or false.
-*/
+ */
 bool SchedulingSystem::isCpuIdle() const
 {
-  return cpu==IDLE;
+  return cpu == IDLE;
 }
 /**
  * @brief get running processes method that gives the name
- * of the current running process and will return IDLE if the cpu is 
+ * of the current running process and will return IDLE if the cpu is
  * currently IDLE.
- * @returns string of the name of the current running process. 
-*/
+ * @returns string of the name of the current running process.
+ */
 string SchedulingSystem::getRunningProcessName() const
 {
   if (isCpuIdle())
@@ -177,10 +177,10 @@ string SchedulingSystem::getRunningProcessName() const
  * @brief function that checks if all processes are done or not.
  * The simulation ends when all processes ran for their service times.
  * @returns bool true or false depending if all processes in the table are done
-*/
+ */
 bool SchedulingSystem::allProcessesDone() const
 {
-  for (Pid pid=0; pid<numProcesses;pid++)
+  for (Pid pid = 0; pid < numProcesses; pid++)
   {
     if (not process[pid].done)
     {
@@ -190,18 +190,17 @@ bool SchedulingSystem::allProcessesDone() const
   return true;
 }
 
-
 /** @brief get pid of running process
-*
-* Returns the process identifier (pid) of the process
-* that is currently running.  This pid can be the
-* special IDLE pid flag if there is currently no process
-* running on the cpu.
-*
-* @returns Pid Returns the process identifier (pid) of the
-*   current running process, or the IDLE flag if the cpu
-*   is currently idle.
-*/
+ *
+ * Returns the process identifier (pid) of the process
+ * that is currently running.  This pid can be the
+ * special IDLE pid flag if there is currently no process
+ * running on the cpu.
+ *
+ * @returns Pid Returns the process identifier (pid) of the
+ *   current running process, or the IDLE flag if the cpu
+ *   is currently idle.
+ */
 Pid SchedulingSystem::getRunningPid() const
 {
   return cpu;
@@ -501,6 +500,24 @@ void SchedulingSystem::checkProcessArrivals()
     }
   }
 }
+/**
+ * @brief dispatch cpu if cpu is currently idle. The process selected
+ * is decided by the scehduling policy linked with its simulation. 
+ * The policy.dispatch is called to request it to give us the pid of 
+ * the process to be dispatched
+ */
+void SchedulingSystem::dispatchCpuIfIdle() 
+{
+  if (isCpuIdle())
+  {
+    cpu=policy->dispatch();
+    if(process[cpu].startTime==NOT_STARTED)
+    {
+      process[cpu].startTime=systemTime;
+    }
+  }
+}
+
 
 /**
  * @brief check if a process did arrive
