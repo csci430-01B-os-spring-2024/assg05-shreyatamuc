@@ -169,11 +169,12 @@ public:
   string getRunningProcessName() const;
   bool allProcessesDone() const;
   void dispatchCpuIfIdle();
+  void checkProcessFinished();
 
-
-  // methods for loading or generating page reference streams
-  // for the simulation
-  void loadProcessTable(string simfilename);
+    // methods for loading or generating page reference streams
+    // for the simulation
+    void
+    loadProcessTable(string simfilename);
   void generateRandomProcessTable(int numProcesses, double arrivalProbability, int maxServiceTime = 6, int seed = SEED_TIME);
   string processTableToString() const;
 

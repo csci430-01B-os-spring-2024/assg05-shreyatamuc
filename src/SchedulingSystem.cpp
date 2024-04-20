@@ -570,22 +570,41 @@ void SchedulingSystem::simulateCpuCycle()
     schedule += "I  ";
   }
 }
-
 /**
- * @brief process preemption
- *
- * Check if process needs to be preempted.  Preemption is a policy
- * decision.  So we send our policy a message each cycle to have
- * it determine if process should preempt or not. The policy will
- * return true if the process should be preempted, and false otherwise.
- * It is up to the policy to keep track of and determine if/when
- * preemption should happen.  For example for time slice based
- * systems, the policy should set a countdown timer and return true
- * when it reaches 0.  For preemption on new arrival, the policy
- * should make a note when a new process arrives, and do a preemption
- * at that point.
- */
-void SchedulingSystem::checkProcessPreemption()
+ * @brief function that checks if the currently running 
+ * process is finished. The process details are updated when the
+ * process is over and the cpu is set to idle. 
+*/
+void SchedulingSystem::checkProcessFinished()
+{
+  if (isCpuIdle())
+  {
+    return;
+  }
+  if (process[cpu].usedTime>=process[cpu].serviceTime)
+  {
+    process[cpu].endTime=systemTime;
+    process[cpu].done=true;
+    cpu=IDLE;
+  }
+}
+
+  /**
+   * @brief process preemption
+   *
+   * Check if process needs to be preempted.  Preemption is a policy
+   * decision.  So we send our policy a message each cycle to have
+   * it determine if process should preempt or not. The policy will
+   * return true if the process should be preempted, and false otherwise.
+   * It is up to the policy to keep track of and determine if/when
+   * preemption should happen.  For example for time slice based
+   * systems, the policy should set a countdown timer and return true
+   * when it reaches 0.  For preemption on new arrival, the policy
+   * should make a note when a new process arrives, and do a preemption
+   * at that point.
+   */
+  void
+  SchedulingSystem::checkProcessPreemption()
 {
   // if cpu is idle, nothing to check
   if (cpu == IDLE)
