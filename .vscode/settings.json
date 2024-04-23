@@ -13,5 +13,7 @@
             "cwd": "${workspaceFolder}",
             "env": {}
         }
-    ]    
+    ],
+    "files.insertFinalNewline": true,
+    "notebook.insertFinalNewline": true
 }

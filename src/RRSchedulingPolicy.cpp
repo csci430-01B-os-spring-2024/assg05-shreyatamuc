@@ -1,13 +1,13 @@
-/** @file FCFSSchedulingPolicy.hpp
- * @brief FCFSSchedulingPolicy class implementation file
+/** @file RRSchedulingPolicy.hpp
+ * @brief RRSchedulingPolicy class implementation file
  *
  * @author Student Name
  * @note   cwid: 123456
  * @date   Fall 2019
  * @note   ide:  g++ 8.2.0 / GNU Make 4.2.1
  *
- * Implementation file for our FCFSSchedulingPolicy class.  The
- * FCFSSchedulingPolicy class is an abstract base class that defines the
+ * Implementation file for our RRSchedulingPolicy class.  The
+ * RRSchedulingPolicy class is an abstract base class that defines the
  * interface for implementing different job scheduling policies.
  * Basically any scheduling policy needs to be notified when a
  * newProcess() arrives, a process runs a runCpuCycle(), and when a
@@ -16,7 +16,7 @@
  * whenever the cpu is idle, and the scheduling policy needs to make a
  * decision.
  */
-#include "FCFSSchedulingPolicy.hpp"
+#include "RRSchedulingPolicy.hpp"
 #include <queue>
 
 using namespace std;
@@ -29,10 +29,11 @@ using namespace std;
  * system instance we are associated with, so we can call the paging system to
  * get needed information to make replacment decisions.
  */
-FCFSSchedulingPolicy::FCFSSchedulingPolicy()
+RRSchedulingPolicy::RRSchedulingPolicy(int quantum)
   : SchedulingPolicy()
 {
-  sys = NULL;
+  this-> quantum=quantum;
+  sys=NULL;
   resetPolicy();
 }
 
@@ -42,7 +43,7 @@ FCFSSchedulingPolicy::FCFSSchedulingPolicy()
  * Define a concrete destructor.  This destructor has no work to do, but
  * base classes that need a destructor should define their own.
  */
-FCFSSchedulingPolicy::~FCFSSchedulingPolicy() {}
+RRSchedulingPolicy::~RRSchedulingPolicy() {}
 
 /** new process
  * Handle new process arrivals.  When a new process arrives it is
@@ -52,7 +53,7 @@ FCFSSchedulingPolicy::~FCFSSchedulingPolicy() {}
  * @param pid The process identifier (pid) of the newly arriving
  *   process that should now be managed by this policy.
  */
-void FCFSSchedulingPolicy::newProcess(Pid pid)
+void RRSchedulingPolicy::newProcess(Pid pid)
 {
   // put the new process on the end of the ready queue
   readyQueue.push(pid);
@@ -69,7 +70,7 @@ void FCFSSchedulingPolicy::newProcess(Pid pid)
  * @returns pid Returns the process identifier of the process
  *   we select to run next.
  */
-Pid FCFSSchedulingPolicy::dispatch()
+Pid RRSchedulingPolicy::dispatch()
 {
   // make sure the ready queue is not empty, if it is we
   // can't dispatch at this time
@@ -80,9 +81,10 @@ Pid FCFSSchedulingPolicy::dispatch()
   // otherwise pop the front item and return it
   else
   {
-    int pid = readyQueue.front();
+    currentProcess=readyQueue.front();
     readyQueue.pop();
-    return pid;
+    runningTimeSliceQuantum=0;
+    return currentProcess;
   }
 }
 
@@ -97,9 +99,20 @@ Pid FCFSSchedulingPolicy::dispatch()
  * @returns bool Always returns false to indicate FCFS never
  *   preempts.
  */
-bool FCFSSchedulingPolicy::preempt()
+bool RRSchedulingPolicy::preempt()
 {
-  return false;
+  runningTimeSliceQuantum++;
+  if (runningTimeSliceQuantum>=quantum)
+  {
+    readyQueue.push(currentProcess);
+    currentProcess=IDLE;
+    return true;
+  }
+  else
+  {
+    return false;
+
+  }
 }
 
 /** reset policy
@@ -108,11 +121,13 @@ bool FCFSSchedulingPolicy::preempt()
  * we want to clear out the ready queue and make sure it is
  * empty to begin with.
  */
-void FCFSSchedulingPolicy::resetPolicy()
+void RRSchedulingPolicy::resetPolicy()
 {
   // make sure the queue is empty, swap a queue with a known
   // empty queue will free up the old queue and ensure we start
   // with an empty one.
+  runningTimeSliceQuantum=0;
+  currentProcess=0;
   queue<Pid> empty;
   swap(readyQueue, empty);
 }
