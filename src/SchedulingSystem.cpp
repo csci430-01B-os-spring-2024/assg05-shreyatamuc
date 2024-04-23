@@ -128,6 +128,67 @@ void SchedulingSystem::resetSystem()
   // make sure our policy resets as well
   policy->resetPolicy();
 }
+/**
+ * @brief system time accessor method that
+ * gives the current system time.
+ * @returns integer current system time of the simulation
+ */
+int SchedulingSystem::getSystemTime() const
+{
+  return systemTime;
+}
+/**
+ * @brief num processes accesor method that gets the
+ * number of simulated processes in the process table.
+ * @returns integer total number of processes in the process table in
+ * the simulation
+ */
+int SchedulingSystem::getNumProcesses() const
+{
+  return numProcesses;
+}
+/**
+ * @brief cpu idle test function that checks
+ * if the cpu is idle or not
+ * @returns boolean true or false.
+ */
+bool SchedulingSystem::isCpuIdle() const
+{
+  return cpu == IDLE;
+}
+/**
+ * @brief get running processes method that gives the name
+ * of the current running process and will return IDLE if the cpu is
+ * currently IDLE.
+ * @returns string of the name of the current running process.
+ */
+string SchedulingSystem::getRunningProcessName() const
+{
+  if (isCpuIdle())
+  {
+    return "IDLE";
+  }
+  else
+  {
+    return process[cpu].name;
+  }
+}
+/**
+ * @brief function that checks if all processes are done or not.
+ * The simulation ends when all processes ran for their service times.
+ * @returns bool true or false depending if all processes in the table are done
+ */
+bool SchedulingSystem::allProcessesDone() const
+{
+  for (Pid pid = 0; pid < numProcesses; pid++)
+  {
+    if (not process[pid].done)
+    {
+      return false;
+    }
+  }
+  return true;
+}
 
 /** @brief get pid of running process
  *
@@ -439,6 +500,24 @@ void SchedulingSystem::checkProcessArrivals()
     }
   }
 }
+/**
+ * @brief dispatch cpu if cpu is currently idle. The process selected
+ * is decided by the scehduling policy linked with its simulation. 
+ * The policy.dispatch is called to request it to give us the pid of 
+ * the process to be dispatched
+ */
+void SchedulingSystem::dispatchCpuIfIdle() 
+{
+  if (isCpuIdle())
+  {
+    cpu=policy->dispatch();
+    if(process[cpu].startTime==NOT_STARTED)
+    {
+      process[cpu].startTime=systemTime;
+    }
+  }
+}
+
 
 /**
  * @brief check if a process did arrive
@@ -491,22 +570,41 @@ void SchedulingSystem::simulateCpuCycle()
     schedule += "I  ";
   }
 }
-
 /**
- * @brief process preemption
- *
- * Check if process needs to be preempted.  Preemption is a policy
- * decision.  So we send our policy a message each cycle to have
- * it determine if process should preempt or not. The policy will
- * return true if the process should be preempted, and false otherwise.
- * It is up to the policy to keep track of and determine if/when
- * preemption should happen.  For example for time slice based
- * systems, the policy should set a countdown timer and return true
- * when it reaches 0.  For preemption on new arrival, the policy
- * should make a note when a new process arrives, and do a preemption
- * at that point.
- */
-void SchedulingSystem::checkProcessPreemption()
+ * @brief function that checks if the currently running 
+ * process is finished. The process details are updated when the
+ * process is over and the cpu is set to idle. 
+*/
+void SchedulingSystem::checkProcessFinished()
+{
+  if (isCpuIdle())
+  {
+    return;
+  }
+  if (process[cpu].usedTime>=process[cpu].serviceTime)
+  {
+    process[cpu].endTime=systemTime;
+    process[cpu].done=true;
+    cpu=IDLE;
+  }
+}
+
+  /**
+   * @brief process preemption
+   *
+   * Check if process needs to be preempted.  Preemption is a policy
+   * decision.  So we send our policy a message each cycle to have
+   * it determine if process should preempt or not. The policy will
+   * return true if the process should be preempted, and false otherwise.
+   * It is up to the policy to keep track of and determine if/when
+   * preemption should happen.  For example for time slice based
+   * systems, the policy should set a countdown timer and return true
+   * when it reaches 0.  For preemption on new arrival, the policy
+   * should make a note when a new process arrives, and do a preemption
+   * at that point.
+   */
+  void
+  SchedulingSystem::checkProcessPreemption()
 {
   // if cpu is idle, nothing to check
   if (cpu == IDLE)
@@ -584,7 +682,7 @@ void SchedulingSystem::runSimulation(bool verbose)
   // to make scheduling decisions.  We keep running the simulation until
   // all processes in the process table are done
   string schedule = "";
-  /*
+  
   while (not allProcessesDone())
   {
     //cout << "runSimulation()> systemTime: " << systemTime << endl;
@@ -610,7 +708,7 @@ void SchedulingSystem::runSimulation(bool verbose)
     // is up to date for scheduling policies to use
     updateProcessStatistics();
   }
-  */
+  
 
   // Display scheduling simulation results if asked too
   if (verbose)

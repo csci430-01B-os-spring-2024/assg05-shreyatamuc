@@ -13,7 +13,7 @@
 //#include "HRRNSchedulingPolicy.hpp"
 //#include "SPNSchedulingPolicy.hpp"
 //#include "SRTSchedulingPolicy.hpp"
-//#include "RRSchedulingPolicy.hpp"
+#include "RRSchedulingPolicy.hpp"
 #include "SchedulingSystem.hpp"
 #include "SimulatorException.hpp"
 #include <iostream>
@@ -100,24 +100,12 @@ int main(int argc, char** argv)
   {
     policy = new FCFSSchedulingPolicy();
   }
-  /*  example of adding additional policies to the simulation
-  else if (policyName == "HRRN")
-  {
-    policy = new HRRNSchedulingPolicy();
-  }
-  else if (policyName == "SPN")
-  {
-    policy = new SPNSchedulingPolicy();
-  }
-  else if (policyName == "SRT")
-  {
-    policy = new SRTSchedulingPolicy();
-  }
+  //example of adding additional policies to the simulation
   else if (policyName == "RR")
   {
     policy = new RRSchedulingPolicy(quantum);
   }
-  */
+  
   else // unknwon/invalid scheduling policy specified
   {
     cerr << "Error: Unknown scheduling policy: " << policyName << endl;
